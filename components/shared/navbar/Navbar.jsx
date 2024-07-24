@@ -8,9 +8,7 @@ import MobileNav from "./MobileNav";
 
 const Navbar = () => {
   return (
-    /*  + 2xl:px-64 */
-    <nav className="background-light900_dark200 flex-between fixed z-50 h-[134px] w-full p-6 shadow-light-300 dark:shadow-none sm:px-12 md:px-16 lg:px-24 xl:px-32 2xl:px-32">
-      {/* + gap-8 */}
+    <nav className="flex-between fixed z-50 h-[134px] w-full bg-gray-50 p-6 dark:shadow-none sm:px-12 md:px-16 lg:px-24 xl:px-32 2xl:px-32">
       <div className="flex items-center gap-8">
         <Link href="/">
           <Image
@@ -20,47 +18,42 @@ const Navbar = () => {
             alt="Partsbase Logo"
           />
         </Link>
-        {/* <div className="hidden flex-1 justify-center md:flex"> */}
         <GlobalSearch />
-        {/* </div> */}
       </div>
 
       <div className="flex items-center gap-5">
-        <div className="hidden items-center gap-5 2xl:flex">
+        <div className="hidden items-center gap-5 xl:flex">
           {navbarLinks.map((item) => (
             <Link
               key={item.route}
               href={item.route}
-              className="text-dark300_light900 hover:text-primary-500"
+              className="text-dark300_light900 text-sm hover:text-primary-500"
             >
               {item.label}
             </Link>
           ))}
+          <Link href="/sign-in">
+            <Button className="small-medium btn-secondary flex min-h-[50px] items-center rounded-[4px] px-3 py-2 shadow-none sm:min-w-[100px]">
+              <Image
+                src="/assets/icons/account.svg"
+                alt="login"
+                width={18}
+                height={18}
+                className="invert-colors lg:hidden"
+              />
+              <span className="primary-text-gradient hidden text-sm lg:block">
+                Log In
+              </span>
+            </Button>
+          </Link>
           <Link href="/sign-up">
-            <Button className="small-medium light-border-2 btn-tertiary text-dark400_light900 min-h-[56px] rounded-[4px] border px-4 py-3 shadow-none">
+            <Button className="small-medium light-border-2 btn-tertiary text-dark400_light900 min-h-[50px] rounded-[4px] border px-3 py-2 !text-light-900 shadow-none">
               Book a Demo
             </Button>
           </Link>
         </div>
 
-        <div className="flex items-center gap-3">
-          <Link href="/sign-in">
-            <Button className="small-medium btn-secondary flex min-h-[56px] items-center rounded-[4px] px-4 py-3 shadow-none sm:min-w-[120px]">
-              <Image
-                src="/assets/icons/account.svg"
-                alt="login"
-                width={20}
-                height={20}
-                className="invert-colors lg:hidden"
-              />
-              <span className="primary-text-gradient hidden lg:block">
-                Log In
-              </span>
-            </Button>
-          </Link>
-        </div>
-
-        <div className="2xl:hidden">
+        <div className="xl:hidden">
           <MobileNav />
         </div>
       </div>

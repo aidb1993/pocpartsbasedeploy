@@ -1,12 +1,30 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import ModalCard from "./ModalCard";
 import { Button } from "../ui/button";
 
 const MarketPriceCard = ({ conditionCodes, medianMarket }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
+  useEffect(() => {
+    console.log("MarketPriceCard props:", {
+      conditionCodes,
+      medianMarket,
+    });
+  }, [conditionCodes, medianMarket]);
+
   const handleModalClose = () => setIsModalOpen(false);
+
+  const formatPrice = (price) => {
+    if (price === "Login for Info") {
+      return price;
+    }
+    return new Intl.NumberFormat("en-US", {
+      style: "currency",
+      currency: "USD",
+    }).format(price);
+  };
+
   return (
     <div className="card-wrapper text-dark100_light900 rounded-[10px] p-6 shadow-lg sm:p-9 md:p-11">
       <h2 className="h2-semibold text-center">Market Price</h2>
@@ -27,7 +45,7 @@ const MarketPriceCard = ({ conditionCodes, medianMarket }) => {
               <td className="border-t px-4 py-2">Median Market</td>
               {medianMarket.map((price, index) => (
                 <td key={index} className="border-t px-4 py-2">
-                  {price}
+                  {formatPrice(price)}
                 </td>
               ))}
             </tr>

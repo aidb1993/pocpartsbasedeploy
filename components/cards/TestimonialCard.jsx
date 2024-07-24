@@ -3,7 +3,7 @@ import React, { useState, useEffect } from "react";
 import { testimonials } from "@/constants";
 import Image from "next/image";
 
-const TestimonialCard = ({ quote, author, role, companyLogo, companyName }) => {
+const Testimonials = ({ quote, author, role, companyLogo, companyName }) => {
   return (
     <div className="background-light800_dark300 rounded-[10px] bg-light-blue-background p-6 shadow-lg">
       <div className="mb-4 flex items-start">
@@ -34,7 +34,7 @@ const TestimonialCard = ({ quote, author, role, companyLogo, companyName }) => {
   );
 };
 
-const Testimonials = () => {
+const TestimonialCard = () => {
   const [selectedTestimonials, setSelectedTestimonials] = useState([]);
 
   useEffect(() => {
@@ -54,11 +54,11 @@ const Testimonials = () => {
       </h2>
       <div className="mx-auto grid max-w-6xl gap-8 md:grid-cols-2">
         {selectedTestimonials.map((testimonial, index) => (
-          <TestimonialCard key={index} {...testimonial} />
+          <Testimonials key={index} {...testimonial} />
         ))}
       </div>
     </div>
   );
 };
 
-export default Testimonials;
+export default TestimonialCard;

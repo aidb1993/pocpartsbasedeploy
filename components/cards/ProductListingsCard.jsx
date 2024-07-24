@@ -1,5 +1,6 @@
+// components/cards/ProductListingsCard.jsx
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Table,
   TableBody,
@@ -11,11 +12,23 @@ import {
 import Link from "next/link";
 import { Button } from "../ui/button";
 import ModalCard from "./ModalCard";
+import productListingsData from "@/mocks/productListingsData";
 
 const ProductListingsCard = ({ productData }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
+  useEffect(() => {
+    console.log("ProductListingsCard props:", { productData });
+  }, [productData]);
+
   const handleModalClose = () => setIsModalOpen(false);
+
+  if (productData?.rateLimitExceeded) {
+    return <div>Rate limit exceeded, please try again later.</div>;
+  }
+
+  const dataToRender =
+    process.env.NODE_ENV === "development" ? productListingsData : productData;
 
   return (
     <div className="card-wrapper text-dark100_light900 rounded-[10px] p-6 shadow-lg sm:p-9 md:p-11">
@@ -57,63 +70,56 @@ const ProductListingsCard = ({ productData }) => {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {productData.slice(0, 10).map((product, index) => (
-              <React.Fragment key={index}>
-                <TableRow className="mb-4 block border-b lg:mb-0 lg:table-row lg:border-none">
-                  <TableCell className="whitespace-nowrap px-4 py-2 text-sm before:block before:font-medium before:uppercase before:tracking-wider before:text-gray-500 before:content-['Part_Number'] lg:before:hidden">
+            {Array.isArray(dataToRender) ? (
+              dataToRender.slice(0, 10).map((product, index) => (
+                <TableRow
+                  key={index}
+                  className="mb-4 block border-b lg:mb-0 lg:table-row lg:border-none"
+                >
+                  <TableCell className="whitespace-nowrap px-4 py-2 text-sm">
                     {product.partNumber}
                   </TableCell>
-                  <TableCell className="whitespace-nowrap px-4 py-2 text-sm before:block before:font-medium before:uppercase before:tracking-wider before:text-gray-500 before:content-['Company_Name'] lg:before:hidden">
-                    {product.companyName}
-                  </TableCell>
-                  <TableCell className="whitespace-nowrap px-4 py-2 text-sm before:block before:font-medium before:uppercase before:tracking-wider before:text-gray-500 before:content-['Description'] lg:before:hidden">
+                  <TableCell className="whitespace-nowrap px-4 py-2 text-sm">
                     {product.description}
                   </TableCell>
-                  <TableCell className="whitespace-nowrap px-4 py-2 text-sm before:block before:font-medium before:uppercase before:tracking-wider before:text-gray-500 before:content-['CC'] lg:before:hidden">
+                  <TableCell className="whitespace-nowrap px-4 py-2 text-sm">
                     {product.conditionCode}
                   </TableCell>
-                  <TableCell className="whitespace-nowrap px-4 py-2 text-sm before:block before:font-medium before:uppercase before:tracking-wider before:text-gray-500 before:content-['Qty'] lg:before:hidden">
+                  <TableCell className="whitespace-nowrap px-4 py-2 text-sm">
                     {product.quantity}
                   </TableCell>
-                  <TableCell className="whitespace-nowrap px-4 py-2 text-sm before:block before:font-medium before:uppercase before:tracking-wider before:text-gray-500 before:content-['Unit_Price'] lg:before:hidden">
-                    <Link href="#" className="text-blue-500 dark:text-blue-400">
-                      Quick RFQ
-                    </Link>
+                  <TableCell className="whitespace-nowrap px-4 py-2 text-sm">
+                    {product.unitPrice.toFixed(2)}
                   </TableCell>
-                  <TableCell className="whitespace-nowrap px-4 py-2 text-sm before:block before:font-medium before:uppercase before:tracking-wider before:text-gray-500 before:content-['Location'] lg:before:hidden">
+                  <TableCell className="whitespace-nowrap px-4 py-2 text-sm">
                     {product.location}
                   </TableCell>
-                  <TableCell className="whitespace-nowrap px-4 py-2 text-sm before:block before:font-medium before:uppercase before:tracking-wider before:text-gray-500 before:content-['Certs'] lg:before:hidden">
-                    {product.cert ? (
-                      <span className="icon icon-cert text-green-500">✔️</span>
-                    ) : (
-                      <span className="icon icon-cert text-red-500">❌</span>
-                    )}
+                  <TableCell className="whitespace-nowrap px-4 py-2 text-sm">
+                    {product.cert ? "Yes" : "No"}
                   </TableCell>
-                  <TableCell className="whitespace-nowrap px-4 py-2 text-sm before:block before:font-medium before:uppercase before:tracking-wider before:text-gray-500 before:content-['Img'] lg:before:hidden">
-                    {product.imageCount ? (
-                      <span className="icon icon-img text-green-500">✔️</span>
-                    ) : (
-                      <span className="icon icon-img text-red-500">❌</span>
-                    )}
+                  <TableCell className="whitespace-nowrap px-4 py-2 text-sm">
+                    {product.imageCount ? "Yes" : "No"}
                   </TableCell>
-                  <TableCell className="whitespace-nowrap px-4 py-2 text-sm before:block before:font-medium before:uppercase before:tracking-wider before:text-gray-500 before:content-['Uploaded'] lg:before:hidden">
+                  <TableCell className="whitespace-nowrap px-4 py-2 text-sm">
                     {product.uploadDate}
                   </TableCell>
                 </TableRow>
-              </React.Fragment>
-            ))}
+              ))
+            ) : (
+              <div>No data available.</div>
+            )}
           </TableBody>
         </Table>
       </div>
-      <div className="mt-4 text-center">
+      <div className="mt-6 text-center">
         <Button
-          className="primary-gradient min-h-[46px] px-4 py-3 !text-light-900"
+          className="primary-gradient base-medium text-dark400_light900 flex h-[74px] min-h-[56px] w-[364px] cursor-pointer items-center justify-center rounded-[4px] px-4 py-3 text-center text-[22px] leading-[30px] !text-light-900 shadow-none"
           onClick={() => setIsModalOpen(true)}
         >
-          Unlock All Suppliers
+          Unlock Full Market Pricing
         </Button>
       </div>
+
       <ModalCard isOpen={isModalOpen} onClose={handleModalClose} />
     </div>
   );

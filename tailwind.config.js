@@ -42,9 +42,12 @@ module.exports = {
         "accent-blue": "#2A7DE2",
         "accent-green": "#05D677",
       },
-      fontFamily: {
+      /*  fontFamily: {
         inter: ["var(--font-inter)"],
         spaceGrotesk: ["var(--font-spaceGrotesk)"],
+      }, */
+      fontFamily: {
+        "avenir-next": ['"Avenir Next"', "sans-serif"], // Custom font family
       },
       backgroundColor: {
         "custom-blue": "rgba(42, 125, 226, 0.17)",
