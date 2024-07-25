@@ -1,9 +1,13 @@
 "use client";
 import React, { useState, useEffect } from "react";
-import { testimonials } from "@/constants";
+import axios from "axios";
 import Image from "next/image";
+import { v4 as uuidv4 } from "uuid";
 
-const Testimonials = ({ quote, author, role, companyLogo, companyName }) => {
+const Testimonials = ({ comment, client, role, icon, company }) => {
+  // Correctly format the icon name to match your filenames
+  const formattedIconName = icon.toLowerCase().replace(/\s+/g, "-");
+
   return (
     <div className="background-light800_dark300 rounded-[10px] bg-light-blue-background p-6 shadow-lg">
       <div className="mb-4 flex items-start">
@@ -14,17 +18,17 @@ const Testimonials = ({ quote, author, role, companyLogo, companyName }) => {
           height={20}
           className="mr-2"
         />
-        <p className="text-2xl font-bold text-primary-500">{quote}</p>
+        <p className="text-2xl font-bold text-primary-500">{comment}</p>
       </div>
-      <p className="text-dark300_light700 mb-4 text-lg">{quote}</p>
+      <p className="text-dark300_light700 mb-4 text-lg">{comment}</p>
       <div className="flex items-center justify-between">
         <div>
-          <p className="text-dark300_light700 font-bold">{author}</p>
+          <p className="text-dark300_light700 font-bold">{client}</p>
           <p className="text-dark300_light700 text-sm">{role}</p>
         </div>
         <Image
-          src={companyLogo}
-          alt={companyName}
+          src={`/assets/icons/${formattedIconName}.svg`}
+          alt={company}
           className="h-12"
           width="161"
           height="24"
@@ -38,13 +42,20 @@ const TestimonialCard = () => {
   const [selectedTestimonials, setSelectedTestimonials] = useState([]);
 
   useEffect(() => {
-    const getRandomTestimonials = (array, num) => {
-      const shuffled = [...array].sort(() => 0.5 - Math.random());
-      return shuffled.slice(0, num);
+    const fetchTestimonials = async () => {
+      try {
+        const sessionId = uuidv4();
+        const response = await axios.get(
+          `https://dev-apiservices.partsbase.com/dev-pbd-Testimonials?size=2&sessionid=${sessionId}`
+        );
+        const data = response.data;
+        setSelectedTestimonials(data);
+      } catch (error) {
+        console.error("Error fetching testimonials:", error);
+      }
     };
 
-    const randomTestimonials = getRandomTestimonials(testimonials, 2);
-    setSelectedTestimonials(randomTestimonials);
+    fetchTestimonials();
   }, []);
 
   return (

@@ -5,13 +5,13 @@ import PartCard from "@/components/cards/PartCard";
 import DemoForm from "@/components/forms/DemoForm";
 import StatisticsCard from "@/components/cards/StatisticsCard";
 import MarketPriceCard from "@/components/cards/MarketPriceCard";
-import ProductListingsCard from "@/components/cards/ProductListingsCard"; // Import the component
+import ProductListingsCard from "@/components/cards/ProductListingsCard";
 import RelatedSearchesCard from "@/components/cards/RelatedSearchesCard";
 import MembershipSection from "@/components/cards/MembershipSection";
 import Testimonials from "@/components/cards/TestimonialCard";
 import { breadcrumbs } from "@/constants";
 import { metadata } from "./metadata";
-import productListingsData from "@/mocks/productListingsData"; // Import mock data
+import { v4 as uuidv4 } from "uuid";
 
 export const generateMetadata = () => {
   return metadata;
@@ -47,10 +47,6 @@ async function fetchData(partNumber, retryAttempt = 0) {
 }
 
 async function fetchTop10Data(partNumber, sessionId, retryAttempt = 0) {
-  if (process.env.NODE_ENV === "development") {
-    console.log("Using mock data for development");
-    return productListingsData;
-  }
   try {
     console.log(`Fetching top 10 data for part number: ${partNumber}`);
     const top10Res = await axios.get(
@@ -79,18 +75,76 @@ async function fetchTop10Data(partNumber, sessionId, retryAttempt = 0) {
   }
 }
 
+async function fetchRelatedSearchesData(
+  partNumber,
+  sessionId,
+  retryAttempt = 0
+) {
+  try {
+    console.log(`Fetching related searches for part number: ${partNumber}`);
+    const relatedSearchRes = await axios.get(
+      `https://dev-apiservices.partsbase.com/dev-pbd-relatedsearch?partnumber=${partNumber}&employeeid=0&sessionid=${sessionId}&industryName=&companyId=`
+    );
+    console.log(
+      "Related searches fetched successfully:",
+      relatedSearchRes.data
+    );
+    return relatedSearchRes.data;
+  } catch (error) {
+    if (error.response && error.response.status === 429) {
+      const retryAfter = error.response.headers["retry-after"];
+      console.error(`Rate limit exceeded. Retry after ${retryAfter} seconds.`);
+      if (retryAttempt < 3) {
+        await new Promise((resolve) =>
+          setTimeout(resolve, (retryAfter || 1) * 1000)
+        );
+        return fetchRelatedSearchesData(
+          partNumber,
+          sessionId,
+          retryAttempt + 1
+        );
+      }
+      return { rateLimitExceeded: true, retryAfter };
+    } else {
+      console.error(
+        "Failed to fetch related searches:",
+        error.response ? error.response.data : error.message
+      );
+      return null;
+    }
+  }
+}
+
+async function fetchTestimonialsData(sessionId) {
+  try {
+    const testimonialsRes = await axios.get(
+      `https://dev-apiservices.partsbase.com/dev-pbd-Testimonials?size=2&sessionid=${sessionId}`
+    );
+    return testimonialsRes.data;
+  } catch (error) {
+    console.error("Failed to fetch testimonials:", error);
+    return [];
+  }
+}
+
 export default async function Home({ searchParams }) {
-  const partNumber = searchParams.partnumber; // Change to 'partnumber'
-  const sessionId = searchParams.sessionid || "default-session-id";
+  const partNumber = searchParams.partnumber;
+  const sessionId = searchParams.sessionid || uuidv4();
 
   let publicSearchData = null;
   let top10Data = null;
+  let relatedSearchesData = null;
+  let testimonialsData = null;
 
   if (partNumber) {
     publicSearchData = await fetchData(partNumber);
     top10Data = await fetchTop10Data(partNumber, sessionId);
+    relatedSearchesData = await fetchRelatedSearchesData(partNumber, sessionId);
+    testimonialsData = await fetchTestimonialsData(sessionId);
     console.log("Public search data:", publicSearchData);
     console.log("Top 10 data:", top10Data);
+    console.log("Related searches data:", relatedSearchesData);
+    console.log("Testimonials data:", testimonialsData);
   } else {
     console.log("No part number provided.");
   }
@@ -162,7 +216,7 @@ export default async function Home({ searchParams }) {
       </div>
 
       <div className="mt-10">
-        <RelatedSearchesCard />
+        <RelatedSearchesCard data={relatedSearchesData?.listfinal || []} />
       </div>
 
       <div className="mt-10">
@@ -170,7 +224,7 @@ export default async function Home({ searchParams }) {
       </div>
 
       <div className="mt-10">
-        <Testimonials />
+        <Testimonials data={testimonialsData} />
       </div>
     </>
   );

@@ -71,7 +71,8 @@ module.exports = {
       },
       screens: {
         xs: "420px",
-        xxl: "1365px",
+        max: "1280px",
+        maxxl: "1365px",
       },
       keyframes: {
         "accordion-down": {

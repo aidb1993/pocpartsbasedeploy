@@ -1,13 +1,15 @@
+import { v4 as uuidv4 } from "uuid";
 import PartCard from "@/components/cards/PartCard";
 import MarketPriceCard from "@/components/cards/MarketPriceCard";
 import ProductListingsCard from "@/components/cards/ProductListingsCard";
 import RelatedSearchesCard from "@/components/cards/RelatedSearchesCard";
 import TestimonialCard from "@/components/cards/TestimonialCard";
 import axios from "axios";
+import productListingsData from "@/mocks/productListingsData";
 
 export const getServerSideProps = async (context) => {
   const { partNumber } = context.params;
-  const sessionId = context.query.sessionid || "default-session-id";
+  const sessionId = context.query.sessionid || uuidv4();
 
   try {
     const [publicSearchRes, top10Res, relatedSearchRes, testimonialsRes] =
@@ -46,7 +48,7 @@ export const getServerSideProps = async (context) => {
       props: {
         partNumber,
         publicSearchData: null,
-        top10Data: null,
+        top10Data: productListingsData, // Fallback to mock data
         relatedSearchData: null,
         testimonialsData: null,
       },
@@ -87,8 +89,11 @@ const PartNumberPage = ({
           []
         }
       />
-      <ProductListingsCard data={top10Data} />
-      <RelatedSearchesCard data={relatedSearchData.listfinal} />
+      <ProductListingsCard productData={top10Data} />
+      <RelatedSearchesCard
+        data={relatedSearchData?.listfinal || []}
+        partNumber={partNumber} // Ensure partNumber is passed here
+      />
       <TestimonialCard data={testimonialsData} />
     </div>
   );

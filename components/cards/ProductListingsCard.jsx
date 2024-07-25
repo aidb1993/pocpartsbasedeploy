@@ -1,4 +1,3 @@
-// components/cards/ProductListingsCard.jsx
 "use client";
 import React, { useState, useEffect } from "react";
 import {
@@ -9,7 +8,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import Link from "next/link";
 import { Button } from "../ui/button";
 import ModalCard from "./ModalCard";
 import productListingsData from "@/mocks/productListingsData";
@@ -23,12 +21,9 @@ const ProductListingsCard = ({ productData }) => {
 
   const handleModalClose = () => setIsModalOpen(false);
 
-  if (productData?.rateLimitExceeded) {
-    return <div>Rate limit exceeded, please try again later.</div>;
-  }
-
-  const dataToRender =
-    process.env.NODE_ENV === "development" ? productListingsData : productData;
+  const dataToRender = productData?.rateLimitExceeded
+    ? productListingsData
+    : productData || [];
 
   return (
     <div className="card-wrapper text-dark100_light900 rounded-[10px] p-6 shadow-lg sm:p-9 md:p-11">
@@ -113,7 +108,7 @@ const ProductListingsCard = ({ productData }) => {
       </div>
       <div className="mt-6 text-center">
         <Button
-          className="primary-gradient base-medium text-dark400_light900 flex h-[74px] min-h-[56px] w-[364px] cursor-pointer items-center justify-center rounded-[4px] px-4 py-3 text-center text-[22px] leading-[30px] !text-light-900 shadow-none"
+          className="primary-gradient base-medium text-dark400_light900 flex h-[74px] min-h-[56px] w-[364px] cursor-pointer items-center justify-center rounded-[4px] px-4 py-3 text-center text-[22px] leading-[30px] text-white shadow-none"
           onClick={() => setIsModalOpen(true)}
         >
           Unlock Full Market Pricing
