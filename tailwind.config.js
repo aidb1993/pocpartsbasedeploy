@@ -42,10 +42,6 @@ module.exports = {
         "accent-blue": "#2A7DE2",
         "accent-green": "#05D677",
       },
-      /*  fontFamily: {
-        inter: ["var(--font-inter)"],
-        spaceGrotesk: ["var(--font-spaceGrotesk)"],
-      }, */
       fontFamily: {
         "avenir-next": ['"Avenir Next"', "sans-serif"], // Custom font family
       },

@@ -17,7 +17,7 @@ export const navbarLinks = [
   },
   {
     imgURL: "/assets/icons/integrations.svg",
-    route: "/integrations",
+    route: "https://www.partsbase.com/integrations?",
     label: "Integrations",
   },
   {

@@ -50,7 +50,7 @@ const DemoForm = ({ onSubmit }) => {
         onSubmit={form.handleSubmit(handleSubmit)}
         className="background-light900_dark300 text-dark400_light700 flex w-full flex-col gap-4 rounded-none bg-[#F5F9FE] p-6 shadow-none md:-mx-6 md:p-8 md:px-16 lg:-mx-0 lg:w-full lg:rounded-none xl:w-[600px] xl:rounded-[28px] xl:bg-[#FFF] xl:shadow-lg"
       >
-        <h3 className="mb-6 justify-center text-center text-2xl font-bold text-primary-500 md:text-3xl xl:text-4xl">
+        <h3 className="mb-7 justify-center text-center text-2xl font-bold text-primary-500 md:text-3xl xl:text-4xl">
           Book Your Demo Today!
         </h3>
 

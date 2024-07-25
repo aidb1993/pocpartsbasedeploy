@@ -22,7 +22,7 @@ const Navbar = () => {
       </div>
 
       <div className="flex items-center gap-5">
-        <div className="hidden items-center gap-5 xl:flex">
+        <div className="hidden items-center gap-5 maxxl:flex">
           {navbarLinks.map((item) => (
             <Link
               key={item.route}
@@ -53,7 +53,22 @@ const Navbar = () => {
           </Link>
         </div>
 
-        <div className="xl:hidden">
+        <Link href="/sign-in" className="flex maxxl:hidden">
+          <Button className="small-medium btn-secondary flex min-h-[50px] items-center rounded-[4px] px-3 py-2 shadow-none sm:min-w-[100px]">
+            <Image
+              src="/assets/icons/account.svg"
+              alt="login"
+              width={18}
+              height={18}
+              className="invert-colors lg:hidden"
+            />
+            <span className="primary-text-gradient hidden text-sm lg:block">
+              Log In
+            </span>
+          </Button>
+        </Link>
+
+        <div className="maxxl:hidden">
           <MobileNav />
         </div>
       </div>

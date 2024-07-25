@@ -4,7 +4,7 @@ import axios from "axios";
 import Image from "next/image";
 import { v4 as uuidv4 } from "uuid";
 
-const Testimonials = ({ comment, client, role, icon, company }) => {
+const Testimonials = ({ title, comment, client, role, icon, company }) => {
   // Correctly format the icon name to match your filenames
   const formattedIconName = icon.toLowerCase().replace(/\s+/g, "-");
 
@@ -18,7 +18,9 @@ const Testimonials = ({ comment, client, role, icon, company }) => {
           height={20}
           className="mr-2"
         />
-        <p className="text-2xl font-bold text-primary-500">{comment}</p>
+        <p className="text-2xl font-bold text-primary-500">
+          {title || comment}
+        </p>
       </div>
       <p className="text-dark300_light700 mb-4 text-lg">{comment}</p>
       <div className="flex items-center justify-between">
@@ -49,6 +51,7 @@ const TestimonialCard = () => {
           `https://dev-apiservices.partsbase.com/dev-pbd-Testimonials?size=2&sessionid=${sessionId}`
         );
         const data = response.data;
+        console.log("Fetched testimonials data:", data); // Log the fetched data
         setSelectedTestimonials(data);
       } catch (error) {
         console.error("Error fetching testimonials:", error);

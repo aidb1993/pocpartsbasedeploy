@@ -155,8 +155,8 @@ export default async function Home({ searchParams }) {
         <BreadcrumbCard breadcrumbs={breadcrumbs} />
       </div>
 
-      <div className="mt-10 flex w-full flex-col justify-between gap-6 xl:flex-row">
-        <div className="flex-1 lg:w-full">
+      <div className="mt-10 flex flex-col gap-6 lg:flex-row lg:justify-between xl:gap-8">
+        <div className="flex-1">
           {partNumber && publicSearchData ? (
             publicSearchData.rateLimitExceeded ? (
               <div>
@@ -180,7 +180,7 @@ export default async function Home({ searchParams }) {
             <div>Enter a part number to search.</div>
           )}
         </div>
-        <div className="flex flex-1 justify-center xl:justify-end">
+        <div className="flex justify-center lg:justify-end">
           <DemoForm />
         </div>
       </div>
