@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import React from "react";
+import React, { Suspense } from "react";
 import { Button } from "@/components/ui/button";
 import { navbarLinks } from "@/constants";
 import GlobalSearch from "../search/GlobalSearch";
@@ -18,7 +18,9 @@ const Navbar = () => {
             alt="Partsbase Logo"
           />
         </Link>
-        <GlobalSearch />
+        <Suspense fallback={<div>Loading...</div>}>
+          <GlobalSearch />
+        </Suspense>
       </div>
 
       <div className="flex items-center gap-5">

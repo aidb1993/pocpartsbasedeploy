@@ -4,65 +4,40 @@ import MarketPriceCard from "@/components/cards/MarketPriceCard";
 import ProductListingsCard from "@/components/cards/ProductListingsCard";
 import RelatedSearchesCard from "@/components/cards/RelatedSearchesCard";
 import TestimonialCard from "@/components/cards/TestimonialCard";
-import axios from "axios";
-import productListingsData from "@/mocks/productListingsData";
 
-export const getServerSideProps = async (context) => {
-  const { partNumber } = context.params;
-  const sessionId = context.query.sessionid || uuidv4();
-
+async function fetchData(url, retries = 3) {
   try {
-    const [publicSearchRes, top10Res, relatedSearchRes, testimonialsRes] =
-      await Promise.all([
-        axios.get(
-          `https://dev-apiservices.partsbase.com/pb-publicsearch?partnumber=${partNumber}&frompublicsearch=true`
-        ),
-        axios.get(
-          `https://dev-apiservices.partsbase.com/dev-pbd-searchTop10?partnumber=${partNumber}&sessionid=${sessionId}`
-        ),
-        axios.get(
-          `https://dev-apiservices.partsbase.com/dev-pbd-relatedsearch?partnumber=${partNumber}&employeeid=0&sessionid=${sessionId}&industryName=&companyId=`
-        ),
-        axios.get(
-          `https://dev-apiservices.partsbase.com/dev-pbd-Testimonials?size=2&sessionid=${sessionId}`
-        ),
-      ]);
-
-    const publicSearchData = publicSearchRes.data;
-    const top10Data = top10Res.data;
-    const relatedSearchData = relatedSearchRes.data;
-    const testimonialsData = testimonialsRes.data;
-
-    return {
-      props: {
-        partNumber,
-        publicSearchData,
-        top10Data,
-        relatedSearchData,
-        testimonialsData,
-      },
-    };
+    const response = await fetch(url);
+    if (!response.ok) {
+      throw new Error(`Error fetching data: ${response.statusText}`);
+    }
+    return await response.json();
   } catch (error) {
-    console.error("Error fetching data:", error);
-    return {
-      props: {
-        partNumber,
-        publicSearchData: null,
-        top10Data: productListingsData, // Fallback to mock data
-        relatedSearchData: null,
-        testimonialsData: null,
-      },
-    };
+    if (retries > 0) {
+      return fetchData(url, retries - 1);
+    } else {
+      console.error(error);
+      return null;
+    }
   }
-};
+}
 
-const PartNumberPage = ({
-  partNumber,
-  publicSearchData,
-  top10Data,
-  relatedSearchData,
-  testimonialsData,
-}) => {
+const PartNumberPage = async ({ params }) => {
+  const { partNumber } = params;
+  const sessionId = uuidv4();
+
+  const publicSearchUrl = `https://dev-apiservices.partsbase.com/pb-publicsearch?partnumber=${partNumber}&frompublicsearch=true`;
+  const top10Url = `https://dev-apiservices.partsbase.com/dev-pbd-searchTop10?partnumber=${partNumber}&sessionid=${sessionId}`;
+  const relatedSearchUrl = `https://dev-apiservices.partsbase.com/dev-pbd-relatedsearch?partnumber=${partNumber}&employeeid=0&sessionid=${sessionId}&industryName=&companyId=`;
+  const testimonialsUrl = `https://dev-apiservices.partsbase.com/dev-pbd-Testimonials?size=2&sessionid=${sessionId}`;
+
+  const [publicSearchData, top10Data, relatedSearchData, testimonialsData] = await Promise.all([
+    fetchData(publicSearchUrl),
+    fetchData(top10Url),
+    fetchData(relatedSearchUrl),
+    fetchData(testimonialsUrl)
+  ]);
+
   if (!publicSearchData) {
     return <div>Failed to load part data.</div>;
   }

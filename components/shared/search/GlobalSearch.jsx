@@ -12,8 +12,8 @@ const GlobalSearch = () => {
   const [search, setSearch] = useState("");
   const [timeoutId, setTimeoutId] = useState(null);
 
-  const handleSearch = (event) => {
-    if (event.key === "Enter" && search.trim()) {
+  const handleSearch = () => {
+    if (search.trim()) {
       if (timeoutId) {
         clearTimeout(timeoutId);
       }
@@ -31,6 +31,12 @@ const GlobalSearch = () => {
     }
   };
 
+  const handleKeyDown = (event) => {
+    if (event.key === "Enter") {
+      handleSearch();
+    }
+  };
+
   return (
     <div className="relative w-full max-w-[600px] max-lg:hidden">
       <div className="background-light800_darkgradient drop-shadow-custom relative flex min-h-[56px] grow items-center gap-1 rounded-full px-4">
@@ -39,10 +45,13 @@ const GlobalSearch = () => {
           placeholder="Free Search"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          onKeyDown={handleSearch}
+          onKeyDown={handleKeyDown}
           className="paragraph-regular no-focus placeholder text-dark400_light700 border-none bg-transparent pl-2 shadow-none outline-none"
         />
-        <div className="flex size-[40px] items-center justify-center rounded-full bg-[#192953] p-2">
+        <div
+          className="flex cursor-pointer items-center justify-center rounded-full bg-[#192953] p-2"
+          onClick={handleSearch}
+        >
           <SearchIcon color="#ffffff" />
         </div>
       </div>

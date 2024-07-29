@@ -1,6 +1,5 @@
 "use client";
 import React, { useState, useEffect } from "react";
-import axios from "axios";
 import Image from "next/image";
 import { v4 as uuidv4 } from "uuid";
 
@@ -47,14 +46,15 @@ const TestimonialCard = () => {
     const fetchTestimonials = async () => {
       try {
         const sessionId = uuidv4();
-        const response = await axios.get(
+        const response = await fetch(
           `https://dev-apiservices.partsbase.com/dev-pbd-Testimonials?size=2&sessionid=${sessionId}`
         );
-        const data = response.data;
+        const data = await response.json();
         console.log("Fetched testimonials data:", data); // Log the fetched data
-        setSelectedTestimonials(data);
+        setSelectedTestimonials(Array.isArray(data) ? data : []);
       } catch (error) {
         console.error("Error fetching testimonials:", error);
+        setSelectedTestimonials([]);
       }
     };
 

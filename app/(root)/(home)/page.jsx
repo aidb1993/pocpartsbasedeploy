@@ -1,5 +1,3 @@
-// app/(root)/(home)/page.jsx
-import axios from "axios";
 import BreadcrumbCard from "@/components/cards/BreadcrumbCard";
 import PartCard from "@/components/cards/PartCard";
 import DemoForm from "@/components/forms/DemoForm";
@@ -17,113 +15,22 @@ export const generateMetadata = () => {
   return metadata;
 };
 
-async function fetchData(partNumber, retryAttempt = 0) {
+
+async function fetchDataWithRetry(url, retries = 3) {
   try {
-    console.log(`Fetching data for part number: ${partNumber}`);
-    const publicSearchRes = await axios.get(
-      `https://dev-apiservices.partsbase.com/pb-publicsearch?partnumber=${partNumber}&frompublicsearch=true`
-    );
-    console.log("Data fetched successfully:", publicSearchRes.data);
-    return publicSearchRes.data;
+    const response = await fetch(url);
+    if (!response.ok) {
+      throw new Error(`Error fetching data: ${response.statusText}`);
+    }
+    return await response.json();
   } catch (error) {
-    if (error.response && error.response.status === 429) {
-      const retryAfter = error.response.headers["retry-after"];
-      console.error(`Rate limit exceeded. Retry after ${retryAfter} seconds.`);
-      if (retryAttempt < 3) {
-        await new Promise((resolve) =>
-          setTimeout(resolve, (retryAfter || 1) * 1000)
-        );
-        return fetchData(partNumber, retryAttempt + 1);
-      }
-      return { rateLimitExceeded: true, retryAfter };
+    if (retries > 0) {
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+      return fetchDataWithRetry(url, retries - 1);
     } else {
-      console.error(
-        "Failed to fetch data:",
-        error.response ? error.response.data : error.message
-      );
+      console.error(error);
       return null;
     }
-  }
-}
-
-async function fetchTop10Data(partNumber, sessionId, retryAttempt = 0) {
-  try {
-    console.log(`Fetching top 10 data for part number: ${partNumber}`);
-    const top10Res = await axios.get(
-      `https://dev-apiservices.partsbase.com/dev-pbd-searchTop10?partnumber=${partNumber}&sessionid=${sessionId}`
-    );
-    console.log("Top 10 data fetched successfully:", top10Res.data);
-    return top10Res.data;
-  } catch (error) {
-    if (error.response && error.response.status === 429) {
-      const retryAfter = error.response.headers["retry-after"];
-      console.error(`Rate limit exceeded. Retry after ${retryAfter} seconds.`);
-      if (retryAttempt < 3) {
-        await new Promise((resolve) =>
-          setTimeout(resolve, (retryAfter || 1) * 1000)
-        );
-        return fetchTop10Data(partNumber, sessionId, retryAttempt + 1);
-      }
-      return { rateLimitExceeded: true, retryAfter };
-    } else {
-      console.error(
-        "Failed to fetch top 10 data:",
-        error.response ? error.response.data : error.message
-      );
-      return null;
-    }
-  }
-}
-
-async function fetchRelatedSearchesData(
-  partNumber,
-  sessionId,
-  retryAttempt = 0
-) {
-  try {
-    console.log(`Fetching related searches for part number: ${partNumber}`);
-    const relatedSearchRes = await axios.get(
-      `https://dev-apiservices.partsbase.com/dev-pbd-relatedsearch?partnumber=${partNumber}&employeeid=0&sessionid=${sessionId}&industryName=&companyId=`
-    );
-    console.log(
-      "Related searches fetched successfully:",
-      relatedSearchRes.data
-    );
-    return relatedSearchRes.data;
-  } catch (error) {
-    if (error.response && error.response.status === 429) {
-      const retryAfter = error.response.headers["retry-after"];
-      console.error(`Rate limit exceeded. Retry after ${retryAfter} seconds.`);
-      if (retryAttempt < 3) {
-        await new Promise((resolve) =>
-          setTimeout(resolve, (retryAfter || 1) * 1000)
-        );
-        return fetchRelatedSearchesData(
-          partNumber,
-          sessionId,
-          retryAttempt + 1
-        );
-      }
-      return { rateLimitExceeded: true, retryAfter };
-    } else {
-      console.error(
-        "Failed to fetch related searches:",
-        error.response ? error.response.data : error.message
-      );
-      return null;
-    }
-  }
-}
-
-async function fetchTestimonialsData(sessionId) {
-  try {
-    const testimonialsRes = await axios.get(
-      `https://dev-apiservices.partsbase.com/dev-pbd-Testimonials?size=2&sessionid=${sessionId}`
-    );
-    return testimonialsRes.data;
-  } catch (error) {
-    console.error("Failed to fetch testimonials:", error);
-    return [];
   }
 }
 
@@ -131,16 +38,21 @@ export default async function Home({ searchParams }) {
   const partNumber = searchParams.partnumber;
   const sessionId = searchParams.sessionid || uuidv4();
 
+  const publicSearchUrl = `https://dev-apiservices.partsbase.com/pb-publicsearch?partnumber=${partNumber}&frompublicsearch=true`;
+  const top10Url = `https://dev-apiservices.partsbase.com/dev-pbd-searchTop10?partnumber=${partNumber}&sessionid=${sessionId}`;
+  const relatedSearchUrl = `https://dev-apiservices.partsbase.com/dev-pbd-relatedsearch?partnumber=${partNumber}&employeeid=0&sessionid=${sessionId}&industryName=&companyId=`;
+  const testimonialsUrl = `https://dev-apiservices.partsbase.com/dev-pbd-Testimonials?size=2&sessionid=${sessionId}`;
+
   let publicSearchData = null;
   let top10Data = null;
   let relatedSearchesData = null;
   let testimonialsData = null;
 
   if (partNumber) {
-    publicSearchData = await fetchData(partNumber);
-    top10Data = await fetchTop10Data(partNumber, sessionId);
-    relatedSearchesData = await fetchRelatedSearchesData(partNumber, sessionId);
-    testimonialsData = await fetchTestimonialsData(sessionId);
+    publicSearchData = await fetchDataWithRetry(publicSearchUrl);
+    top10Data = await fetchDataWithRetry(top10Url);
+    relatedSearchesData = await fetchDataWithRetry(relatedSearchUrl);
+    testimonialsData = await fetchDataWithRetry(testimonialsUrl);
     console.log("Public search data:", publicSearchData);
     console.log("Top 10 data:", top10Data);
     console.log("Related searches data:", relatedSearchesData);
