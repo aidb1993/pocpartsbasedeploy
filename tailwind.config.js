@@ -17,6 +17,8 @@ module.exports = {
     },
     extend: {
       colors: {
+        'accent': "#7B8593",
+        "muted-foreground": "#7B8593",
         primary: {
           500: "#2A7DE2",
           400: "#002857",

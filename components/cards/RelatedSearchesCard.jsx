@@ -59,7 +59,7 @@ const RelatedSearchesCard = ({ data, partNumber }) => {
               href={`/search-results/${search.partNumber}`}
               className="mt-2 flex cursor-pointer items-center justify-center text-primary-500"
             >
-              View search results <SearchIcon color="#7B8EC8" />
+              View search results <SearchIcon color="#2A7DE2" className='pl-2' />
             </Link>
           </div>
         ))}
