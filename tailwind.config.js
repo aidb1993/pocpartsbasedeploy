@@ -1,4 +1,3 @@
-/** @type {import('tailwindcss').Config} */
 module.exports = {
   darkMode: ["class"],
   content: [
@@ -17,14 +16,20 @@ module.exports = {
     },
     extend: {
       colors: {
-        'accent': "#7B8593",
+        accent: "#7B8593",
         "muted-foreground": "#7B8593",
         primary: {
+          DEFAULT: "#2A7DE2",
+          foreground: "#FFFFFF", // Assuming the primary foreground is white
           500: "#2A7DE2",
           400: "#002857",
           300: "#7B8593",
           200: "#6D6D6D",
           100: "#FFFFFF",
+        },
+        destructive: {
+          DEFAULT: "#E53E3E", // Assuming the destructive color is red
+          foreground: "#FFFFFF", // Assuming the destructive foreground is white
         },
         dark: {
           100: "#000000",
@@ -44,12 +49,22 @@ module.exports = {
         "accent-blue": "#2A7DE2",
         "accent-green": "#05D677",
       },
-      fontFamily: {
-        "avenir-next": ['"Avenir Next"', "sans-serif"], // Custom font family
+      ringOffsetColor: {
+        background: "#F5F9FE",
       },
       backgroundColor: {
+        background: "#FFFFFF",
         "custom-blue": "rgba(42, 125, 226, 0.17)",
         "light-blue-background": "#F5F9FE",
+      },
+      textColor: {
+        "primary-foreground": "#FFFFFF",
+        "destructive-foreground": "#FFFFFF",
+        "accent-foreground": "#2A7DE2",
+        "secondary-foreground": "#6D6D6D",
+      },
+      borderColor: {
+        input: "#D1D5DB",
       },
       boxShadow: {
         "light-100":

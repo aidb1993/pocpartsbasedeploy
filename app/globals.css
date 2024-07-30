@@ -10,6 +10,26 @@ body {
 
 /* Custom Utilities */
 @layer utilities {
+  .ring-offset-background {
+    @apply ring-offset-blue-500; /* Example class, adjust as needed */
+  }
+
+  .focus\:ring-ring {
+    @apply focus:ring-blue-500; /* Example class, adjust as needed */
+  }
+
+  .bg-background {
+    @apply bg-white; /* Example class, adjust as needed */
+  }
+
+  .data-\[state\=open\]\:bg-secondary {
+    @apply bg-secondary; /* Example class, adjust as needed */
+  }
+
+  .focus-visible\:ring-ring {
+    @apply focus-visible:ring-blue-500; /* Example class, adjust as needed */
+  }
+
   .flex-center {
     @apply flex justify-center items-center;
   }
