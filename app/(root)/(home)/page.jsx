@@ -1,3 +1,4 @@
+import React, { Suspense } from "react";
 import BreadcrumbCard from "@/components/cards/BreadcrumbCard";
 import PartCard from "@/components/cards/PartCard";
 import DemoForm from "@/components/forms/DemoForm";
@@ -14,7 +15,6 @@ import { v4 as uuidv4 } from "uuid";
 export const generateMetadata = () => {
   return metadata;
 };
-
 
 async function fetchDataWithRetry(url, retries = 3) {
   try {
@@ -34,9 +34,9 @@ async function fetchDataWithRetry(url, retries = 3) {
   }
 }
 
-export default async function Home({ searchParams }) {
-  const partNumber = searchParams.partnumber;
-  const sessionId = searchParams.sessionid || uuidv4();
+async function Home({ params }) {
+  const partNumber = params.partnumber;
+  const sessionId = params.sessionid || uuidv4();
 
   const publicSearchUrl = `https://dev-apiservices.partsbase.com/pb-publicsearch?partnumber=${partNumber}&frompublicsearch=true`;
   const top10Url = `https://dev-apiservices.partsbase.com/dev-pbd-searchTop10?partnumber=${partNumber}&sessionid=${sessionId}`;
@@ -49,10 +49,13 @@ export default async function Home({ searchParams }) {
   let testimonialsData = null;
 
   if (partNumber) {
-    publicSearchData = await fetchDataWithRetry(publicSearchUrl);
-    top10Data = await fetchDataWithRetry(top10Url);
-    relatedSearchesData = await fetchDataWithRetry(relatedSearchUrl);
-    testimonialsData = await fetchDataWithRetry(testimonialsUrl);
+    [publicSearchData, top10Data, relatedSearchesData, testimonialsData] =
+      await Promise.all([
+        fetchDataWithRetry(publicSearchUrl),
+        fetchDataWithRetry(top10Url),
+        fetchDataWithRetry(relatedSearchUrl),
+        fetchDataWithRetry(testimonialsUrl),
+      ]);
     console.log("Public search data:", publicSearchData);
     console.log("Top 10 data:", top10Data);
     console.log("Related searches data:", relatedSearchesData);
@@ -69,28 +72,32 @@ export default async function Home({ searchParams }) {
 
       <div className="mt-10 flex flex-col gap-6 lg:flex-row lg:justify-between xl:gap-8">
         <div className="flex-1">
-          {partNumber && publicSearchData ? (
-            publicSearchData.rateLimitExceeded ? (
-              <div>
-                Rate limit exceeded, please try again later. Retry after{" "}
-                {publicSearchData.retryAfter} seconds.
-              </div>
+          <Suspense fallback={<div>Loading...</div>}>
+            {partNumber && publicSearchData ? (
+              publicSearchData.rateLimitExceeded ? (
+                <div>
+                  Rate limit exceeded, please try again later. Retry after{" "}
+                  {publicSearchData.retryAfter} seconds.
+                </div>
+              ) : (
+                <PartCard
+                  partNumber={partNumber}
+                  descriptions={publicSearchData.final_descriptions || []}
+                  alternativePartNumbers={
+                    publicSearchData.final_alt_parts || []
+                  }
+                  manufacturers={
+                    publicSearchData.final_manufacturer.map((name) => ({
+                      name,
+                      nsn: publicSearchData.nsn.join(", "),
+                    })) || []
+                  }
+                />
+              )
             ) : (
-              <PartCard
-                partNumber={partNumber}
-                descriptions={publicSearchData.final_descriptions || []}
-                alternativePartNumbers={publicSearchData.final_alt_parts || []}
-                manufacturers={
-                  publicSearchData.final_manufacturer.map((name) => ({
-                    name,
-                    nsn: publicSearchData.nsn.join(", "),
-                  })) || []
-                }
-              />
-            )
-          ) : (
-            <div>Enter a part number to search.</div>
-          )}
+              <div>Enter a part number to search.</div>
+            )}
+          </Suspense>
         </div>
         <div className="flex justify-center lg:justify-end">
           <DemoForm />
@@ -99,36 +106,44 @@ export default async function Home({ searchParams }) {
 
       <div className="mt-10 flex flex-col gap-6">
         <div className="flex-1 md:w-full">
-          <StatisticsCard
-            partNumber={partNumber}
-            activeSellers={publicSearchData?.active_seller || 0}
-            searched={publicSearchData?.partsnumber_searched || 0}
-            sellersLink="/view-all-suppliers"
-            searchesDescription="times in the last 30 days"
-          />
+          <Suspense fallback={<div>Loading...</div>}>
+            <StatisticsCard
+              partNumber={partNumber}
+              activeSellers={publicSearchData?.active_seller || 0}
+              searched={publicSearchData?.partsnumber_searched || 0}
+              sellersLink="/view-all-suppliers"
+              searchesDescription="times in the last 30 days"
+            />
+          </Suspense>
         </div>
         <div className="hidden xl:block xl:flex-1">
-          <MarketPriceCard
-            conditionCodes={
-              publicSearchData?.market_price?.map(
-                (item) => item.ConditionCode
-              ) || []
-            }
-            medianMarket={
-              publicSearchData?.market_price?.map(
-                (item) => item.MedianUnitPrice
-              ) || []
-            }
-          />
+          <Suspense fallback={<div>Loading...</div>}>
+            <MarketPriceCard
+              conditionCodes={
+                publicSearchData?.market_price?.map(
+                  (item) => item.ConditionCode
+                ) || []
+              }
+              medianMarket={
+                publicSearchData?.market_price?.map(
+                  (item) => item.MedianUnitPrice
+                ) || []
+              }
+            />
+          </Suspense>
         </div>
       </div>
 
       <div className="mt-10">
-        <ProductListingsCard productData={top10Data} />
+        <Suspense fallback={<div>Loading...</div>}>
+          <ProductListingsCard productData={top10Data} />
+        </Suspense>
       </div>
 
       <div className="mt-10">
-        <RelatedSearchesCard data={relatedSearchesData?.listfinal || []} />
+        <Suspense fallback={<div>Loading...</div>}>
+          <RelatedSearchesCard data={relatedSearchesData?.listfinal || []} />
+        </Suspense>
       </div>
 
       <div className="mt-10">
@@ -136,8 +151,16 @@ export default async function Home({ searchParams }) {
       </div>
 
       <div className="mt-10">
-        <Testimonials data={testimonialsData} />
+        <Suspense fallback={<div>Loading...</div>}>
+          {testimonialsData ? (
+            <Testimonials data={testimonialsData} />
+          ) : (
+            <div>Failed to load testimonials.</div>
+          )}
+        </Suspense>
       </div>
     </>
   );
 }
+
+export default Home;

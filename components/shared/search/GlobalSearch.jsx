@@ -1,13 +1,13 @@
 "use client";
 
 import React, { useState } from "react";
-import { useRouter, usePathname, useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Input } from "@/components/ui/input";
 import SearchIcon from "../SearchIcon";
 
 const GlobalSearch = () => {
   const router = useRouter();
-  const pathname = usePathname();
+  // const pathname = usePathname();
   const searchParams = useSearchParams();
   const [search, setSearch] = useState("");
   const [timeoutId, setTimeoutId] = useState(null);
@@ -20,11 +20,12 @@ const GlobalSearch = () => {
 
       const newTimeoutId = setTimeout(() => {
         const newSearchParams = new URLSearchParams(searchParams);
-        newSearchParams.set("partnumber", search.trim());
         newSearchParams.set("frompublicsearch", "true");
 
-        const newUrl = `${pathname}?${newSearchParams.toString()}`;
+        const newUrl = `/parts/${search.trim()}?${newSearchParams.toString()}`;
+        console.log(newUrl);
         router.push(newUrl);
+        // parts/as100?frompublicsearch=true
       }, 500); // 500ms debounce time
 
       setTimeoutId(newTimeoutId);
