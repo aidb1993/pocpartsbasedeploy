@@ -1,12 +1,23 @@
+"use client";
+import React, { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import React, { Suspense } from "react";
 import { Button } from "@/components/ui/button";
 import { navbarLinks } from "@/constants";
 import GlobalSearch from "../search/GlobalSearch";
 import MobileNav from "./MobileNav";
 
 const Navbar = () => {
+  const [openMenu, setOpenMenu] = useState(null);
+
+  const handleMouseEnter = (index) => {
+    setOpenMenu(index);
+  };
+
+  const handleMouseLeave = () => {
+    setOpenMenu(null);
+  };
+
   return (
     <nav className="flex-between fixed z-50 h-[134px] w-full bg-gray-50 p-6 dark:shadow-none sm:px-12 md:px-16 lg:px-24 xl:px-32 2xl:px-32">
       <div className="flex items-center gap-8">
@@ -18,21 +29,38 @@ const Navbar = () => {
             alt="Partsbase Logo"
           />
         </Link>
-        <Suspense fallback={<div>Loading...</div>}>
-          <GlobalSearch />
-        </Suspense>
+        <GlobalSearch />
       </div>
 
       <div className="flex items-center gap-5">
         <div className="hidden items-center gap-5 maxxl:flex">
-          {navbarLinks.map((item) => (
-            <Link
+          {navbarLinks.map((item, index) => (
+            <div
               key={item.route}
-              href={item.route}
-              className="text-dark300_light900 text-sm hover:text-primary-500"
+              className="relative"
+              onMouseEnter={() => handleMouseEnter(index)}
+              onMouseLeave={handleMouseLeave}
             >
-              {item.label}
-            </Link>
+              <Link
+                href={item.route}
+                className="text-dark300_light900 text-sm hover:text-primary-500"
+              >
+                {item.label}
+              </Link>
+              {item.subLinks && openMenu === index && (
+                <div className="absolute left-0 z-10 mt-2 w-48 rounded-md bg-white shadow-lg">
+                  {item.subLinks.map((subItem) => (
+                    <Link
+                      key={subItem.route}
+                      href={subItem.route}
+                      className="block px-4 py-2 text-gray-800 hover:bg-gray-200"
+                    >
+                      {subItem.label}
+                    </Link>
+                  ))}
+                </div>
+              )}
+            </div>
           ))}
           <Link href="/sign-in">
             <Button className="small-medium btn-secondary flex min-h-[50px] items-center rounded-[4px] px-3 py-2 shadow-none sm:min-w-[100px]">

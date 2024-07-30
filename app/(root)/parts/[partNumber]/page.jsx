@@ -6,95 +6,139 @@ import RelatedSearchesCard from "@/components/cards/RelatedSearchesCard";
 import TestimonialCard from "@/components/cards/TestimonialCard";
 import DemoForm from "@/components/forms/DemoForm";
 import BreadcrumbCard from "@/components/cards/BreadcrumbCard";
-import { breadcrumbs } from "@/constants";
-
-async function fetchData(url) {
-  try {
-    const response = await fetch(url);
-    if (!response.ok) {
-      throw new Error(`Error fetching data: ${response.statusText}`);
-    }
-    return await response.json();
-  } catch (error) {
-    console.error(error);
-    return null;
-  }
-}
+import { getBreadcrumbs } from "@/constants";
+import { fetchAllData } from "@/lib/fetchData";
+import { Suspense } from "react";
+import MembershipSection from "@/components/cards/MembershipSection";
+import StatisticsCard from "@/components/cards/StatisticsCard";
 
 const PartNumberPage = async ({ params }) => {
   const { partNumber } = params;
-
-  if (!partNumber) {
-    return <div>No part number provided.</div>;
-  }
-
   const sessionId = uuidv4();
 
-  const publicSearchUrl = `https://dev-apiservices.partsbase.com/pb-publicsearch?partnumber=${partNumber}&frompublicsearch=true`;
-  const top10Url = `https://dev-apiservices.partsbase.com/dev-pbd-searchTop10?partnumber=${partNumber}&sessionid=${sessionId}`;
-  const relatedSearchUrl = `https://dev-apiservices.partsbase.com/dev-pbd-relatedsearch?partnumber=${partNumber}&employeeid=0&sessionid=${sessionId}&industryName=&companyId=`;
-  const testimonialsUrl = `https://dev-apiservices.partsbase.com/dev-pbd-Testimonials?size=2&sessionid=${sessionId}`;
+  let publicSearchData = null;
+  let top10Data = null;
+  let relatedSearchesData = null;
+  let testimonialsData = null;
 
-  const [publicSearchData, top10Data, relatedSearchData, testimonialsData] =
-    await Promise.all([
-      fetchData(publicSearchUrl),
-      fetchData(top10Url),
-      fetchData(relatedSearchUrl),
-      fetchData(testimonialsUrl),
-    ]);
+  if (partNumber) {
+    const data = await fetchAllData(partNumber, sessionId);
+    publicSearchData = data.publicSearchData;
+    top10Data = data.top10Data;
+    relatedSearchesData = data.relatedSearchData;
+    testimonialsData = data.testimonialsData;
+
+    console.log("Public search data:", publicSearchData);
+    console.log("Top 10 data:", top10Data);
+    console.log("Related searches data:", relatedSearchesData);
+    console.log("Testimonials data:", testimonialsData);
+  } else {
+    console.log("No part number provided.");
+  }
 
   if (!publicSearchData) {
     return <div>Failed to load part data.</div>;
   }
 
   return (
-    <div>
-      <div className="mt-10">
-        <BreadcrumbCard breadcrumbs={breadcrumbs} />
+    <>
+      <div className="mt-20">
+        <BreadcrumbCard breadcrumbs={getBreadcrumbs(partNumber)} />
       </div>
 
-      <div className="mt-10 flex flex-col gap-6 lg:flex-row lg:justify-between xl:gap-8">
+      <div className="mt-20 flex flex-col gap-6 lg:flex-row lg:justify-between xl:gap-8">
         <div className="flex-1">
-          {publicSearchData.rateLimitExceeded ? (
-            <div>
-              Rate limit exceeded, please try again later. Retry after{" "}
-              {publicSearchData.retryAfter} seconds.
-            </div>
-          ) : (
-            <PartCard
-              partNumber={partNumber}
-              descriptions={publicSearchData.final_descriptions || []}
-              alternativePartNumbers={publicSearchData.final_alt_parts || []}
-              manufacturers={
-                publicSearchData.final_manufacturer.map((name) => ({
-                  name,
-                  nsn: publicSearchData.nsn.join(", "),
-                })) || []
-              }
-            />
-          )}
+          <Suspense fallback={<div>Loading...</div>}>
+            {partNumber && publicSearchData ? (
+              publicSearchData.rateLimitExceeded ? (
+                <div>
+                  Rate limit exceeded, please try again later. Retry after{" "}
+                  {publicSearchData.retryAfter} seconds.
+                </div>
+              ) : (
+                <PartCard
+                  partNumber={partNumber}
+                  descriptions={publicSearchData.final_descriptions || []}
+                  alternativePartNumbers={
+                    publicSearchData.final_alt_parts || []
+                  }
+                  manufacturers={
+                    publicSearchData.final_manufacturer.map((name) => ({
+                      name,
+                      nsn: publicSearchData.nsn.join(", "),
+                    })) || []
+                  }
+                />
+              )
+            ) : (
+              <div>Enter a part number to search.</div>
+            )}
+          </Suspense>
         </div>
         <div className="flex justify-center lg:justify-end">
           <DemoForm />
         </div>
       </div>
 
-      <MarketPriceCard
-        conditionCodes={
-          publicSearchData.market_price.map((item) => item.ConditionCode) || []
-        }
-        medianMarket={
-          publicSearchData.market_price.map((item) => item.MedianUnitPrice) ||
-          []
-        }
-      />
-      <ProductListingsCard productData={top10Data} />
-      <RelatedSearchesCard
-        data={relatedSearchData?.listfinal || []}
-        partNumber={partNumber} // Ensure partNumber is passed here
-      />
-      <TestimonialCard data={testimonialsData} />
-    </div>
+      <div className="mt-20 flex flex-col gap-6">
+        <div className="flex-1 md:w-full">
+          <Suspense fallback={<div>Loading...</div>}>
+            <StatisticsCard
+              partNumber={partNumber}
+              activeSellers={publicSearchData?.active_seller || 0}
+              searched={publicSearchData?.partsnumber_searched || 0}
+              sellersLink="/view-all-suppliers"
+              searchesDescription="times in the last 30 days"
+            />
+          </Suspense>
+        </div>
+        <div className="hidden xl:block xl:flex-1">
+          <Suspense fallback={<div>Loading...</div>}>
+            <MarketPriceCard
+              conditionCodes={
+                publicSearchData?.market_price?.map(
+                  (item) => item.ConditionCode
+                ) || []
+              }
+              medianMarket={
+                publicSearchData?.market_price?.map(
+                  (item) => item.MedianUnitPrice
+                ) || []
+              }
+            />
+          </Suspense>
+        </div>
+      </div>
+
+      <div className="mt-20">
+        <Suspense fallback={<div>Loading...</div>}>
+          <ProductListingsCard productData={top10Data} />
+        </Suspense>
+      </div>
+
+      <div className="mt-20">
+        <Suspense fallback={<div>Loading...</div>}>
+          <RelatedSearchesCard
+            partNumber={partNumber}
+            data={relatedSearchesData?.listfinal || []}
+          />
+        </Suspense>
+      </div>
+
+      <div className="mt-20">
+        <MembershipSection />
+      </div>
+
+      <div className="mt-20">
+        <Suspense fallback={<div>Loading...</div>}>
+          {testimonialsData ? (
+            <TestimonialCard data={testimonialsData} />
+          ) : (
+            <div>Failed to load testimonials.</div>
+          )}
+        </Suspense>
+      </div>
+    </>
   );
 };
 

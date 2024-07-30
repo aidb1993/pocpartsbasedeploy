@@ -3,30 +3,49 @@ export const themes = [
   { value: "dark", label: "Dark", icon: "/assets/icons/moon.svg" },
   { value: "system", label: "System", icon: "/assets/icons/computer.svg" },
 ];
-
 export const navbarLinks = [
   {
-    imgURL: "/assets/icons/membership.svg",
     route: "https://www.partsbase.com/becomeaMember?",
     label: "Membership",
   },
   {
-    imgURL: "/assets/icons/commerce.svg",
     route: "#",
     label: "Commerce",
+    subLinks: [
+      {
+        route:
+          "https://partstore.partsbase.com/?utm_content=navi&utm_medium=organic&utm_source=partsbase_website",
+        label: "PartStore",
+      },
+      {
+        route:
+          "https://pblister.partsbase.com/?utm_content=navi&utm_medium=organic&utm_source=partsbase_website",
+        label: "PB Lister",
+      },
+    ],
   },
   {
-    imgURL: "/assets/icons/integrations.svg",
     route: "https://www.partsbase.com/integrations?",
     label: "Integrations",
   },
   {
-    imgURL: "/assets/icons/resources.svg",
-    route: "/resources",
+    route: "#",
     label: "Resources",
+    subLinks: [
+      {
+        route:
+          "https://www.partsbase.com/landing/training?utm_content=footer&utm_medium=organic&utm_source=partsbase_website",
+        label: "Video Library",
+      },
+      {
+        route:
+          "https://www.linkedin.com/authwall?trk=bf&trkInfo=AQG6PR-dgArOxAAAAZCxWJU4_sss4o25-lQW7F4ibgkB-kAPYaTbV3lyLl2r_IkylL3_fcJ9twz9LEFrVg-TApveKRBVOo1REAPhknAe8FJFYWeeawxctorgv27Gmob2tvIiAc8=&original_referer=&sessionRedirect=https%3A%2F%2Fwww.linkedin.com%2Fcompany%2Fpartsbase-com",
+        label: "Careers",
+      },
+      { route: "https://blog.partsbase.com/", label: "Blog" },
+    ],
   },
   {
-    imgURL: "/assets/icons/pbexpo.svg",
     route: "https://www.pbexpo.org/",
     label: "PBEXPO",
   },
@@ -152,10 +171,10 @@ export const statisticsData = [
   },
 ];
 
-export const breadcrumbs = [
+export const getBreadcrumbs = (partNumber) => [
   { label: "Home", href: "https://www.partsbase.com/" },
   { label: "Parts", href: "https://www.partsbase.com/parts/" },
-  { label: "DK120", href: "/" },
+  { label: partNumber, href: `/parts/${partNumber}` },
 ];
 
 export const descriptionItems = [
