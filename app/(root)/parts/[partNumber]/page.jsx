@@ -8,7 +8,7 @@ import DemoForm from "@/components/forms/DemoForm";
 import BreadcrumbCard from "@/components/cards/BreadcrumbCard";
 import { breadcrumbs } from "@/constants";
 
-async function fetchData(url, retries = 3) {
+async function fetchData(url) {
   try {
     const response = await fetch(url);
     if (!response.ok) {
@@ -16,17 +16,18 @@ async function fetchData(url, retries = 3) {
     }
     return await response.json();
   } catch (error) {
-    if (retries > 0) {
-      return fetchData(url, retries - 1);
-    } else {
-      console.error(error);
-      return null;
-    }
+    console.error(error);
+    return null;
   }
 }
 
 const PartNumberPage = async ({ params }) => {
   const { partNumber } = params;
+
+  if (!partNumber) {
+    return <div>No part number provided.</div>;
+  }
+
   const sessionId = uuidv4();
 
   const publicSearchUrl = `https://dev-apiservices.partsbase.com/pb-publicsearch?partnumber=${partNumber}&frompublicsearch=true`;
@@ -52,42 +53,25 @@ const PartNumberPage = async ({ params }) => {
         <BreadcrumbCard breadcrumbs={breadcrumbs} />
       </div>
 
-      {/* <PartCard
-        partNumber={partNumber}
-        descriptions={publicSearchData.final_descriptions || []}
-        alternativePartNumbers={publicSearchData.final_alt_parts || []}
-        manufacturers={
-          publicSearchData.final_manufacturer.map((name) => ({
-            name,
-            nsn: publicSearchData.nsn.join(", "),
-          })) || []
-        }
-      />
-      <DemoForm /> */}
-
       <div className="mt-10 flex flex-col gap-6 lg:flex-row lg:justify-between xl:gap-8">
         <div className="flex-1">
-          {partNumber && publicSearchData ? (
-            publicSearchData.rateLimitExceeded ? (
-              <div>
-                Rate limit exceeded, please try again later. Retry after{" "}
-                {publicSearchData.retryAfter} seconds.
-              </div>
-            ) : (
-              <PartCard
-                partNumber={partNumber}
-                descriptions={publicSearchData.final_descriptions || []}
-                alternativePartNumbers={publicSearchData.final_alt_parts || []}
-                manufacturers={
-                  publicSearchData.final_manufacturer.map((name) => ({
-                    name,
-                    nsn: publicSearchData.nsn.join(", "),
-                  })) || []
-                }
-              />
-            )
+          {publicSearchData.rateLimitExceeded ? (
+            <div>
+              Rate limit exceeded, please try again later. Retry after{" "}
+              {publicSearchData.retryAfter} seconds.
+            </div>
           ) : (
-            <div>Enter a part number to search.</div>
+            <PartCard
+              partNumber={partNumber}
+              descriptions={publicSearchData.final_descriptions || []}
+              alternativePartNumbers={publicSearchData.final_alt_parts || []}
+              manufacturers={
+                publicSearchData.final_manufacturer.map((name) => ({
+                  name,
+                  nsn: publicSearchData.nsn.join(", "),
+                })) || []
+              }
+            />
           )}
         </div>
         <div className="flex justify-center lg:justify-end">

@@ -16,7 +16,7 @@ export const generateMetadata = () => {
   return metadata;
 };
 
-async function fetchDataWithRetry(url, retries = 3) {
+async function fetchData(url) {
   try {
     const response = await fetch(url);
     if (!response.ok) {
@@ -24,13 +24,8 @@ async function fetchDataWithRetry(url, retries = 3) {
     }
     return await response.json();
   } catch (error) {
-    if (retries > 0) {
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-      return fetchDataWithRetry(url, retries - 1);
-    } else {
-      console.error(error);
-      return null;
-    }
+    console.error(error);
+    return null;
   }
 }
 
@@ -51,10 +46,10 @@ async function Home({ params }) {
   if (partNumber) {
     [publicSearchData, top10Data, relatedSearchesData, testimonialsData] =
       await Promise.all([
-        fetchDataWithRetry(publicSearchUrl),
-        fetchDataWithRetry(top10Url),
-        fetchDataWithRetry(relatedSearchUrl),
-        fetchDataWithRetry(testimonialsUrl),
+        fetchData(publicSearchUrl),
+        fetchData(top10Url),
+        fetchData(relatedSearchUrl),
+        fetchData(testimonialsUrl),
       ]);
     console.log("Public search data:", publicSearchData);
     console.log("Top 10 data:", top10Data);
