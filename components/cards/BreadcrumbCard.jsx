@@ -15,7 +15,11 @@ const BreadcrumbCard = ({ breadcrumbs }) => {
             <BreadcrumbItem>
               <BreadcrumbLink
                 href={crumb.href}
-                className="text-primary-500 hover:text-primary-400"
+                className={`${
+                  index === breadcrumbs.length - 1
+                    ? "h3-semibold text-primary-400"
+                    : "font-semibold capitalize text-primary-500"
+                }`}
               >
                 {crumb.label}
               </BreadcrumbLink>

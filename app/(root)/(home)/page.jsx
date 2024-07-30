@@ -18,7 +18,7 @@ export const generateMetadata = () => {
 };
 
 async function Home({ params }) {
-  const partNumber = params.partnumber;
+  const partNumber = params.partnumber?.toUpperCase();
   const sessionId = params.sessionid || uuidv4();
 
   let publicSearchData = null;
@@ -119,7 +119,10 @@ async function Home({ params }) {
 
       <div className="mt-20">
         <Suspense fallback={<div>Loading...</div>}>
-          <RelatedSearchesCard data={relatedSearchesData?.listfinal || []} />
+          <RelatedSearchesCard
+            partNumber={partNumber}
+            data={relatedSearchesData?.listfinal || []}
+          />
         </Suspense>
       </div>
 

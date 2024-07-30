@@ -13,7 +13,7 @@ import MembershipSection from "@/components/cards/MembershipSection";
 import StatisticsCard from "@/components/cards/StatisticsCard";
 
 const PartNumberPage = async ({ params }) => {
-  const { partNumber } = params;
+  const partNumber = params.partNumber?.toUpperCase();
   const sessionId = uuidv4();
 
   let publicSearchData = null;

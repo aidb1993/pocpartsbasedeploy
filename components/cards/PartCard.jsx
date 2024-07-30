@@ -27,7 +27,7 @@ const PartCard = ({
     <div className="text-dark100_light900 rounded-[10px] py-6 pr-6 xl:py-24 xl:pr-24">
       <div className="inline-block rounded-md bg-light-blue-background p-4 text-center shadow-md">
         <h1 className="base-medium px-3 py-4 text-[70px] font-bold text-primary-400">
-          {partNumber}
+          {partNumber.toUpperCase()}
         </h1>
       </div>
       <section className="mt-6">
