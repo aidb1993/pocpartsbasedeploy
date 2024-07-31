@@ -1,7 +1,7 @@
 // app/(root)/layout.jsx
 import Footer from "@/components/shared/footer/Footer";
 import Navbar from "@/components/shared/navbar/Navbar";
-import React from "react";
+import React, { Suspense } from "react";
 import { metadata } from "./(home)/metadata";
 
 const Layout = ({ children }) => {
@@ -12,7 +12,9 @@ const Layout = ({ children }) => {
       </head>
       <body>
         <main className="background-light850_dark100 relative">
-          <Navbar />
+          <Suspense fallback={<div>Loading...</div>}>
+            <Navbar />
+          </Suspense>
           <div className="flex w-full">
             <section className="flex min-h-screen w-full flex-1 flex-col bg-white pb-6 pt-36 max-md:pb-14">
               <div className="w-full px-4 sm:px-0 md:px-0 lg:px-0 xl:px-64">

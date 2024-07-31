@@ -25,6 +25,7 @@ const GlobalSearch = () => {
         const newUrl = `/parts/${search.trim()}?${newSearchParams.toString()}`;
         console.log(newUrl);
         router.push(newUrl);
+        setSearch("");
         // parts/as100?frompublicsearch=true
       }, 500); // 500ms debounce time
 
