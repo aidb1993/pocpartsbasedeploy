@@ -58,7 +58,7 @@ export const sidebarLinks = [
     label: "Membership",
   },
   {
-    imgURL: "/assets/icons/tag.svg",
+    imgURL: "/assets/icons/currency-dollar-circle.svg",
     route: "/commerce",
     label: "Commerce",
     subLinks: [
