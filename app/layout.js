@@ -3,7 +3,6 @@ import React from "react";
 import { Inter, Space_Grotesk } from "next/font/google";
 
 import "./globals.css";
-import "../styles/prism.css";
 
 const inter = Inter({
   subsets: ["latin"],
