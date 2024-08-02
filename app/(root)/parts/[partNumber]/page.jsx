@@ -12,7 +12,22 @@ import { Suspense } from "react";
 import MembershipSection from "@/components/cards/MembershipSection";
 import StatisticsCard from "@/components/cards/StatisticsCard";
 
+export async function generateStaticParams() {
+  return  [
+      {
+        partNumber: "AS100",
+      },
+      {
+        partNumber: "1000",
+      },
+      {
+        partNumber: "AS300",
+      },
+    ];
+}
+
 const PartNumberPage = async ({ params }) => {
+  console.log("Part number page params:", params);
   const partNumber = params.partNumber?.toUpperCase();
   const sessionId = uuidv4();
 
