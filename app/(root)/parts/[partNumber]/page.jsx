@@ -12,6 +12,8 @@ import { Suspense } from "react";
 import MembershipSection from "@/components/cards/MembershipSection";
 import StatisticsCard from "@/components/cards/StatisticsCard";
 
+export const dynamicParams = true
+
 export async function generateStaticParams() {
   return  [
       {
